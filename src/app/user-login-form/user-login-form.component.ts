@@ -9,7 +9,7 @@ import { MatSnackBar } from "@angular/material/snack-bar";
 	styleUrls: ["./user-login-form.component.scss"],
 })
 export class UserLoginFormComponent implements OnInit {
-	@Input() userData = { Username: "", Password: "", Email: "", Birthday: "" };
+	@Input() userData = { Username: "", Password: "" };
 
 	constructor(
 		public fetchApiData: FetchApiDataService,
@@ -27,8 +27,9 @@ export class UserLoginFormComponent implements OnInit {
 					duration: 2000,
 				});
 			},
-			(result) => {
-				this.snackBar.open(result, "OK", {
+			(error) => {
+				const errorMessage = error.error ? error.error.message : "An error occurred";
+				this.snackBar.open(errorMessage, "OK", {
 					duration: 2000,
 				});
 			}
