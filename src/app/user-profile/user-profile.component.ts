@@ -1,44 +1,64 @@
 import { Component, OnInit, Input } from "@angular/core";
-
-// // You'll use this import to close the dialog on success
 import { MatDialogRef } from "@angular/material/dialog";
-
-// // This import is used to display notifications back to the user
 import { MatSnackBar } from "@angular/material/snack-bar";
-
-// This import brings in the API calls we created in 6.2
 import { FetchApiDataService } from "../fetch-api-data.service";
 import { Router } from "@angular/router";
-
 import { formatDate } from "@angular/common";
 
+/**
+ * Komponente für das Benutzerprofil.
+ */
 @Component({
 	selector: "app-user-profile",
 	templateUrl: "./user-profile.component.html",
 	styleUrls: ["./user-profile.component.scss"],
 })
 export class UserProfileComponent implements OnInit {
-	user: any = {};
-	favoriteMovies: any[] = [];
-
+	/**
+	 * Benutzerdaten des Benutzerprofils.
+	 * @type {Object}
+	 * @property {string} Username
+	 * @property {string} Password
+	 * @property {string} Email
+	 * @property {string} Birthday
+	 */
 	@Input() userData = { Username: "", Password: "", Email: "", Birthday: "" };
 
-	constructor(
-		public fetchApiData: FetchApiDataService,
-		//public dialogRef: MatDialogRef<UserProfileComponent>,
-		public snackBar: MatSnackBar,
-		private router: Router
-	) {}
+	/**
+	 * Der Benutzer des Profils.
+	 * @type {Object}
+	 */
+	user: any = {};
 
+	/**
+	 * Eine Liste der Lieblingsfilme des Benutzers.
+	 * @type {Object[]}
+	 */
+	favoriteMovies: any[] = [];
+
+	/**
+	 * Konstruktor der UserProfileComponent.
+	 * @param {FetchApiDataService} fetchApiData
+	 * @param {MatSnackBar} snackBar
+	 * @param {Router} router
+	 */
+	constructor(public fetchApiData: FetchApiDataService, public snackBar: MatSnackBar, private router: Router) {}
+
+	/**
+	 * Wird aufgerufen, wenn die Komponente initialisiert wird.
+	 * Ruft die Methode getUser() auf, um den Benutzer und seine Lieblingsfilme abzurufen.
+	 */
 	ngOnInit(): void {
 		this.getUser();
 	}
 
+	/**
+	 * Ruft den Benutzer und seine Lieblingsfilme über die API ab und aktualisiert die Benutzerdaten für das Profil.
+	 */
 	getUser(): void {
 		this.user = this.fetchApiData.getOneUser();
 		this.userData.Username = this.user.Username;
 		this.userData.Email = this.user.Email;
-		// this.user.Birthday comes in as ISOString format, like so: "2011-10-05T14:48:00.000Z"
 		this.userData.Birthday = formatDate(this.user.Birthday, "yyyy-MM-dd", "en-US", "UTC+0");
 
 		this.fetchApiData.getAllMovies().subscribe((resp: any) => {
@@ -46,6 +66,10 @@ export class UserProfileComponent implements OnInit {
 		});
 	}
 
+	/**
+	 * Bearbeitet die Benutzerdaten über die API.
+	 * Speichert die aktualisierten Benutzerdaten im lokalen Speicher
+	 */
 	editUser(): void {
 		this.fetchApiData.editUser(this.userData).subscribe(
 			(result) => {
@@ -63,6 +87,10 @@ export class UserProfileComponent implements OnInit {
 		);
 	}
 
+	/**
+	 * Löscht den Benutzer über die API.
+	 * Löscht auch den lokalen Speicher und navigiert zur Willkommensseite.
+	 */
 	deleteUser(): void {
 		this.fetchApiData.deleteUser().subscribe(
 			(result) => {
